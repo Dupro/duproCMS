@@ -52,3 +52,8 @@ Regular visitors can:
 - search through blog categories
 - Register on the platform with mail confirmation system, where they need to click on a specific link with token to get approved.
 - Send an email to the admins via Contact Us page.
+
+If you want to test or use the CMS, you can download the databases from the database-versions folder, and use it with the most recent version of the platform.
+
+If you need anything from me, or want to contact me, feel free to do so via this email address: duskoprokopijevic@gmail.com
+
