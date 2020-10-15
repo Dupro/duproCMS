@@ -1,0 +1,12 @@
+{
+    "name": "dusko/cms",
+    "authors": [
+        {
+            "name": "Dusko Pro",
+            "email": "duskoprophp@gmail.com"
+        }
+    ],
+    "require": {
+        "pusher/pusher-php-server": "^4.1"
+    }
+}
