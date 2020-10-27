@@ -24,7 +24,7 @@
     <script src="//ajax.googleapis.com/ajax/libs/jquery/2.0.3/jquery.min.js" ></script>
     <script>
 
-        toastr.success('HELLOuuu')
+        toastr.success('You clicked a button!')
     </script>
 
 </body>

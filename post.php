@@ -4,6 +4,70 @@
                 <!-- Navigation -->
 <?php include "includes/navigation.php"; ?>
 
+   
+   <?php
+
+if(isset($_POST['liked'])){
+    
+    // 1 - Fetching the right post
+    $post_id = $_POST['post_id'];
+    $user_id = $_POST['user_id'];
+
+    
+    $query = "SELECT * FROM posts WHERE post_id= $post_id";
+    $postResult = mysqli_query($connection, $query);    
+    $post = mysqli_fetch_array($postResult);
+    $likes = $post['likes'];
+    
+    if(mysqli_num_rows($postResult) >= 1) {
+        
+        echo $post['post_id'];
+    }
+    
+    
+    // 2 - update post with likes
+    
+    mysqli_query($connection, "UPDATE posts SET likes=$likes+1 WHERE post_id= $post_id");
+    
+    // 3 - create likes for post
+    
+    mysqli_query($connection, "INSERT INTO likes(user_id, post_id) VALUES($user_id, $post_id)");
+    exit();
+
+}
+
+
+if(isset($_POST['unliked'])){
+
+    echo 'UNLIKED';
+    $post_id = $_POST['post_id'];
+    $user_id = $_POST['user_id'];
+//
+//    // 1 - Fetching The right post
+//    
+    $query = "SELECT * FROM posts WHERE post_id= $post_id";
+    $postResult = mysqli_query($connection, $query);    
+    $post = mysqli_fetch_array($postResult);
+    $likes = $post['likes'];
+  
+    //2 = DELETE Likes
+    
+    mysqli_query($connection, "DELETE FROM likes WHERE post_id=$post_id AND user_id=$user_id");
+
+    
+    //3 = UPDATE With Decrementing Likes
+    
+    mysqli_query($connection, "UPDATE posts SET likes=$likes-1 WHERE post_id= $post_id");
+    exit();
+    
+}
+
+?>
+   
+   
+   
+   
+   
     <!-- Page Content -->
     <div class="container">
 
@@ -18,43 +82,103 @@
                     
                     $the_post_id = $_GET['p_id'];
                     
-                    
-                    $view_query = "UPDATE posts SET post_views_count = post_views_count + 1 WHERE post_id = $the_post_id";
-                    $send_query = mysqli_query($connection, $view_query); 
-                    
-                    if(!$send_query){
-                        die("QUERY FAILED" );
-                    }
-                    
-                    if(isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin'){
-                        
-                        $query = "SELECT * FROM posts WHERE post_id= $the_post_id";
-                        
-                    } else {
-                        
-                        $query = "SELECT * FROM posts WHERE post_id= $the_post_id AND post_status = 'published'";
-                        
-                    }
-                    
-                
-                $select_all_posts_query = mysqli_query($connection, $query);
-                    
-                     if(mysqli_num_rows($select_all_posts_query) <1){
-                        
-                        echo "<h1 class='text-center'> NO POSTS AVAILABLE</h1>"; 
-                    } else{
-                    
-                    
-                    
-                    
-                    
-                    while($row = mysqli_fetch_assoc($select_all_posts_query)){
-                        $post_title = $row ['post_title'];
-                        $post_author = $row ['post_author'];
-                        $post_date = $row ['post_date'];
-                        $post_image = $row ['post_image'];
-                        $post_content = $row ['post_content'];
-                        $post_views_count = $row ['post_views_count'];
+                     $update_statement = mysqli_prepare($connection, "UPDATE posts SET post_views_count = post_views_count + 1 WHERE post_id = ?");
+
+        mysqli_stmt_bind_param($update_statement, "i", $the_post_id);
+
+        mysqli_stmt_execute($update_statement);
+
+        // mysqli_stmt_bind_result($stmt1, $post_id, $post_title, $post_author, $post_date, $post_image, $post_content);
+    
+
+
+     if(!$update_statement) {
+
+        die("query failed" );
+    }
+
+
+    if(isset($_SESSION['username']) && is_admin($_SESSION['username']) ) {
+
+
+         $stmt1 = mysqli_prepare($connection, "SELECT post_title, post_author, post_date, post_image, post_content, post_views_count FROM posts WHERE post_id = ?");
+
+
+    } else {
+        $stmt2 = mysqli_prepare($connection , "SELECT post_title, post_author, post_date, post_image, post_content, post_views_count FROM posts WHERE post_id = ? AND post_status = ? ");
+
+        $published = 'published';
+
+
+
+    }
+
+
+
+    if(isset($stmt1)){
+
+        mysqli_stmt_bind_param($stmt1, "i", $the_post_id);
+
+        mysqli_stmt_execute($stmt1);
+
+        mysqli_stmt_bind_result($stmt1, $post_title, $post_author, $post_date, $post_image, $post_content, $post_views_count);
+
+      $stmt = $stmt1;
+
+
+    }else {
+
+
+        mysqli_stmt_bind_param($stmt2, "is", $the_post_id, $published);
+
+        mysqli_stmt_execute($stmt2);
+
+        mysqli_stmt_bind_result($stmt2, $post_title, $post_author, $post_date, $post_image, $post_content, $post_views_count);
+
+     $stmt = $stmt2;
+
+    }
+
+
+
+
+    while(mysqli_stmt_fetch($stmt)) {
+//                    $view_query = "UPDATE posts SET post_views_count = post_views_count + 1 WHERE post_id = $the_post_id";
+//                    $send_query = mysqli_query($connection, $view_query); 
+//                    
+//                    if(!$send_query){
+//                        die("QUERY FAILED" );
+//                    }
+//                    
+//                    if(isset($_SESSION['user_role']) && $_SESSION['user_role'] == 'admin'){
+//                        
+//                        $query = "SELECT * FROM posts WHERE post_id= $the_post_id";
+//                        
+//                    } else {
+//                        
+//                        $query = "SELECT * FROM posts WHERE post_id= $the_post_id AND post_status = 'published'";
+//                        
+//                    }
+//                    
+//                
+//                $select_all_posts_query = mysqli_query($connection, $query);
+//                    
+//                     if(mysqli_num_rows($select_all_posts_query) <1){
+//                        
+//                        echo "<h1 class='text-center'> NO POSTS AVAILABLE</h1>"; 
+//                    } else{
+//                    
+//                    
+//                    
+//                    
+//                    
+//                    while($row = mysqli_fetch_assoc($select_all_posts_query)){
+//                        $post_title = $row ['post_title'];
+//                        $post_author = $row ['post_author'];
+//                        $post_date = $row ['post_date'];
+//                        $post_image = $row ['post_image'];
+//                        $post_content = $row ['post_content'];
+//                        $post_views_count = $row ['post_views_count'];
                         ?>
                         
                         <h1 class="page-header">
@@ -70,14 +194,66 @@
                 </p>
                 <p><span class="glyphicon glyphicon-time"></span> <?php echo $post_date; ?><span class="navbar-text navbar-right"> Post Views: <?php echo $post_views_count; ?></span></p>
                 <hr>
-                <img class="img-responsive" src="images/<?php echo imagePlaceholder($post_image); ?>" alt="">
+                <img class="img-responsive" src="/cms/images/<?php echo $post_image;?>" alt="">
                 <hr>
                 <p><?php echo $post_content; ?></p>
+                
+                <?php         // FREEING RESULT
+mysqli_stmt_free_result ( $stmt )
+      //  mysqli_stmt_free_result($stmt); ?>
+                
+                       
+
+           <?php
+
+                if(isLoggedIn()){ ?>
 
 
-                <hr>    
+                    <div class="row">
+                        <p class="pull-right"><a
+                                class="<?php echo userLikedThisPost($the_post_id) ? 'unlike' : 'like'; ?>"
+                                href=""><span class="glyphicon glyphicon-thumbs-up"
+                                data-toggle="tooltip"
+                                data-placement="top"
+                                title="<?php echo userLikedThisPost($the_post_id) ? ' I liked this before' : 'Want to like it?'; ?>"
+
+
+
+                                ></span>
+                                <?php echo userLikedThisPost($the_post_id) ? ' Unlike' : ' Like'; ?>
+
+
+
+
+                            </a></p>
+                    </div>
+
+
+              <?php  } else { ?>
+
+                    <div class="row">
+                        <p class="pull-right login-to-post">You need to <a href="/cms/login.php">Login</a> to like </p>
+                    </div>
+
+
+                <?php }
+
+
+            ?>
+
+
+
+                <div class="row">
+                    <p class="pull-right likes">Like: <?php getPostlikes($the_post_id); ?></p>
+                </div>
+                        <div class="clearfix"></div>
                         
-            <?php } 
+                        
+            <?php 
+                    
+                    
+                    
+                    } 
                 
                 
                 
@@ -203,7 +379,7 @@
                   
                   
                   
-                   <?php } 
+                   <?php  
 
                     }  } else {
                         header("Location: index.php");
@@ -225,3 +401,52 @@
         <hr>
         
        <?php include "includes/footer.php"; ?>
+       
+      
+     
+    
+   
+  
+ <script>
+        $(document).ready(function(){
+            
+            var post_id = <?php echo $the_post_id; ?>
+                
+                var user_id = <?php echo loggedInUserId(); ?>
+                
+            // LIKEING
+            
+            $('.like').click(function(){
+                $.ajax({
+                    url: "/cms/post.php?p_id=<?php echo $the_post_id; ?>",
+                    type: 'post',
+                    data: {
+                        'liked': 1,
+                        'post_id': post_id,
+                        'user_id': user_id
+                    }
+                });
+            });
+               // UNLIKING
+            
+             $('.unlike').click(function(){
+                $.ajax({
+                    url: "/cms/post.php?p_id=<?php echo $the_post_id; ?>",
+                    type: 'post',
+                    data: {
+                        'unliked': 1,
+                        'post_id': post_id,
+                        'user_id': user_id
+                    }
+                });
+            });
+            
+            
+        });
+     
+  
+     
+           
+        
+        
+        </script>
