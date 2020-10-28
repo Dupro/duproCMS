@@ -1,15 +1,9 @@
 <?php include "includes/admin_header.php"; ?>
 
     <div id="wrapper">
-       <?php
-$post_count = count_records(get_all_user_posts());
-$comment_count = count_records(get_all_post_user_comments());
-$category_count = count_records(get_all_user_categories());
-$post_published_count = count_records(get_all_user_published_posts());
-$post_draft_count = count_records(get_all_user_draft_posts());
-$approved_comment_count = count_records(get_all_user_approved_posts_comments());
-$unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments());
-       ?>
+       
+
+       
         <!-- Navigation -->
 
 <?php include "includes/admin_navigation.php"; ?>
@@ -22,8 +16,8 @@ $unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments
         <div class="row">
             <div class="col-lg-12">
                 <h1 class="page-header">
-                    Welcome to Admin
-                    <small><?php echo strtoupper(get_user_name()); ?></small>
+                    Welcome to the Admin Dashboard
+                    <small><?php echo $_SESSION['username'] ?></small>
                 </h1>
 
 
@@ -36,7 +30,7 @@ $unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments
                 <!-- /.row -->
                 
 <div class="row">
-    <div class="col-lg-4 col-md-6">
+    <div class="col-lg-3 col-md-6">
         <div class="panel panel-primary">
             <div class="panel-heading">
                 <div class="row">
@@ -44,8 +38,8 @@ $unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments
                         <i class="fa fa-file-text fa-5x"></i>
                     </div>
                     <div class="col-xs-9 text-right">
-                           
-                           <div class='huge'><?php echo $post_count; ?></div>
+    
+                           <div class='huge'><?php echo $post_count = recordCount('posts'); ?></div>
 
                         <div>Posts</div>
                     </div>
@@ -60,7 +54,7 @@ $unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments
             </a>
         </div>
     </div>
-    <div class="col-lg-4 col-md-6">
+    <div class="col-lg-3 col-md-6">
         <div class="panel panel-green">
             <div class="panel-heading">
                 <div class="row">
@@ -69,7 +63,7 @@ $unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments
                     </div>
                     <div class="col-xs-9 text-right">
                              
-                                    <div class='huge'><?php echo $comment_count ?></div>
+                                    <div class='huge'><?php echo $comment_count = recordCount('comments'); ?></div>
 
                       <div>Comments</div>
                     </div>
@@ -84,7 +78,6 @@ $unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments
             </a>
         </div>
     </div>
-<!--
     <div class="col-lg-3 col-md-6">
         <div class="panel panel-yellow">
             <div class="panel-heading">
@@ -94,7 +87,7 @@ $unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments
                     </div>
                     <div class="col-xs-9 text-right">
 
-                             <div class='huge'><?php // echo $user_count = recordCount('users'); ?></div>
+                             <div class='huge'><?php echo $user_count = recordCount('users'); ?></div>
                         <div> Users</div>
                     </div>
                 </div>
@@ -108,8 +101,7 @@ $unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments
             </a>
         </div>
     </div>
--->
-    <div class="col-lg-4 col-md-6">
+    <div class="col-lg-3 col-md-6">
         <div class="panel panel-red">
             <div class="panel-heading">
                 <div class="row">
@@ -118,7 +110,7 @@ $unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments
                     </div>
                     <div class="col-xs-9 text-right">
                        
-                             <div class='huge'><?php echo $category_count; ?></div>
+                             <div class='huge'><?php echo $category_count = recordCount('categories'); ?></div>
                              
                          <div>Categories</div>
                     </div>
@@ -139,7 +131,11 @@ $unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments
         <?php 
         
 
-       
+        $post_published_count = checkStatus('posts', 'post_status', 'published');
+
+        $post_draft_count = checkStatus('posts', 'post_status', 'draft');
+
+        $unapproved_comment_count = checkStatus('comments', 'comment_status', 'unapproved');
         
         $subscriber_count = checkUserRole('users', 'user_role', 'subscriber');
         
@@ -160,10 +156,10 @@ $unapproved_comment_count = count_records(get_all_user_unapproved_posts_comments
             
             <?php 
             
-            $element_text = ['All Posts', 'Active Post', 'Draft Posts', 'Comments', 'Approved Comments', 'Pending Comments', 'Categories'];
-            $element_count = [$post_count, $post_published_count, $post_draft_count, $comment_count, $approved_comment_count, $unapproved_comment_count, $category_count];
+            $element_text = ['All Posts', 'Active Post', 'Draft Posts', 'Comments', 'Pending Comments', 'Users', 'Admins', 'Subscribers', 'Categories'];
+            $element_count = [$post_count, $post_published_count, $post_draft_count, $comment_count, $unapproved_comment_count, $user_count, $admin_count, $subscriber_count, $category_count];
             
-            for($i =0; $i <7; $i++){
+            for($i =0; $i <9; $i++){
                 
                 echo "['{$element_text[$i]}'" . " ," . "{$element_count[$i]}],";
 
